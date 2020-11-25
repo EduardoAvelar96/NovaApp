@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         val request = ServiceBuilder.buildService(EndPoints::class.java)
         val call = request.getUsers()
 
-        call.enqueue(object : Callback<List<User>> {
+        call.enqueue(object : Callback<List<User>>{
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
                 if (response.isSuccessful){
                     recyclerView.apply {
@@ -37,8 +37,9 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-            override fun onFailure(call: Call<List<User>>, t: Throwable) =
+            override fun onFailure(call: Call<List<User>>, t: Throwable) {
                 Toast.makeText(this@MainActivity, "${t.message}", Toast.LENGTH_SHORT).show()
+            }
         })
     }
 
@@ -60,7 +61,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-
     fun post(view: View) {
 
         val request = ServiceBuilder.buildService(EndPoints::class.java)
