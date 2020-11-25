@@ -1,6 +1,7 @@
 package ipvc.estg.novaapp
 
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -36,9 +37,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var locationCallback: LocationCallback
     private lateinit var locationRequest: LocationRequest
 
+    //coordenadas fixas para calculo de distancia
+    private var continenteLat: Double = 0.0
+    private var continenteLong: Double = 0.0
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+
+        //ponto fixo para medir a distância
+        continenteLat = 41.7043
+        continenteLong = -8.8148
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -54,8 +64,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 super.onLocationResult(p0)
                 lastLocation = p0.lastLocation
                 var loc = LatLng(lastLocation.latitude, lastLocation.longitude)
-       //adicionar marcador//mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.0f))
+                //mMap.addMarker(MarkerOptions().position(loc).title("Marker"))
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.0f))
+                //preenche as coordenadas
                 findViewById<TextView>(R.id.txtcoordenadas).setText("Lat: " + loc.latitude + " - Long: " + loc.longitude)
+
+                //reverse geocoding (morada)
+                val address = getAddress(lastLocation.latitude, lastLocation.longitude)
+                findViewById<TextView>(R.id.txtmorada).setText("Morada: " + address)
+
+                //distância
+                findViewById<TextView>(R.id.txtdistancia).setText("Distância: " + calculateDistance(
+                    lastLocation.latitude, lastLocation.longitude,
+                    continenteLat, continenteLong).toString())
+
                 Log.d("**** Eduardo", "new location received - " + loc.latitude + " -" + loc.longitude)
             }
         }
@@ -108,7 +130,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         /*val sydney = LatLng(-34.0, 151.0)
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))*/
-
         setUpMap()
     }
 
@@ -174,4 +195,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Log.d("**** Eduardo", "onResume - startLocationUpdates")
     }
 
+    private fun getAddress(lat: Double, lng: Double): String {
+        val geocoder = Geocoder(this)
+        val list = geocoder.getFromLocation(lat, lng, 1)
+        return list[0].getAddressLine(0)
+    }
+
+    fun calculateDistance(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Float {
+        val results = FloatArray(1)
+        Location.distanceBetween(lat1, lng1, lat2, lng2, results)
+        // distance in meter
+        return results[0]
+    }
 }
