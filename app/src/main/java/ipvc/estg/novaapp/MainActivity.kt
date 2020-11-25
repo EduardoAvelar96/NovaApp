@@ -1,12 +1,12 @@
 package ipvc.estg.novaapp
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.activity_main.*
 import ipvc.estg.novaapp.Adapter.UserAdapter
 import ipvc.estg.novaapp.api.EndPoints
 import ipvc.estg.novaapp.api.OutputPost
@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         val request = ServiceBuilder.buildService(EndPoints::class.java)
         val call = request.getUsers()
 
-        call.enqueue(object : Callback<List<User>>{
+        call.enqueue(object : Callback<List<User>> {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
                 if (response.isSuccessful){
                     recyclerView.apply {
@@ -84,5 +84,6 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, MapsActivity::class.java).apply {
         }
         startActivity(intent)
+
     }
 }
